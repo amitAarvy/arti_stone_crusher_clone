@@ -273,6 +273,9 @@ class _AddInwardChallanState extends State<AddInwardChallan> {
       }
     }
   }
+
+  ValueNotifier<String> challanType = ValueNotifier('');
+  TextEditingController challanNo = TextEditingController();
   Future<void> updateInward() async {
     try {
       isLoading.value =true;
@@ -341,6 +344,7 @@ class _AddInwardChallanState extends State<AddInwardChallan> {
                   children: [
                     _buildDropdown('Select Plant', plantOptions.map((e) => DropdownMenuItem(value: e['id'].toString(), child: Text(e['plant_name'],style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400),))).toList(), selectedPlant,
                             (val) => setState(() => selectedPlant = val)),
+
                     _buildRadioButtons('Select Vehicle Type', ['Own Vehicle', 'Supplier Vehicle'],
                         vehicleType, (val) {
                           if(widget.isEdit){
@@ -368,23 +372,50 @@ class _AddInwardChallanState extends State<AddInwardChallan> {
 
                           setState(() => vehicleType = val);
                         }),
-                    if (vehicleType == 'Supplier Vehicle')
+                    if (vehicleType == 'Supplier Vehicle')...[
                       PartyDropdown(content: supplierOptions, title: 'Select Supplier', valueId: 'id', valueText: 'supplier_name', onChanged: (value) {
                         setState(() {
                           selectedSupplier = value;
                         });
                       },value: selectedSupplier,showTitle: true,),
-                    if (vehicleType == 'Supplier Vehicle')
                       SizedBox(height: 10,),
-                      // _buildDropdown('Select Supplier', supplierOptions.map((e) => DropdownMenuItem(value: e['id'].toString(),child: Text(e['supplier_name'],style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400),))).toList(),
-                      //     selectedSupplier, (val) => setState(() => selectedSupplier = val)),
-                    _buildDropdown('Select Vehicle', vehicleOptions.map((e) => DropdownMenuItem(value: jsonEncode(e),child: Text(e['vehicle_no'],style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400),))).toList(), selectedVehicle,
-                            (val) {
-                          var data = jsonDecode(val);
-                          vehicleNumberController.text=data['vehicle_no'].toString();
-                          selectedVehicle = val;
-                        }),
-                    _buildTextField('Enter Vehicle Number', vehicleNumberController),
+                    ],
+                    if (vehicleType != 'Supplier Vehicle')...[
+                      _buildDropdown('Select Vehicle', vehicleOptions.map((e) => DropdownMenuItem(value: jsonEncode(e),child: Text(e['vehicle_no'],style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400),))).toList(), selectedVehicle,
+                              (val) {
+                            var data = jsonDecode(val);
+                            vehicleNumberController.text=data['vehicle_no'].toString();
+                            selectedVehicle = val;
+                          }),
+                      _buildTextField('Enter Vehicle Number', vehicleNumberController),
+                    ],
+
+                    ValueListenableBuilder(
+                      valueListenable: challanType,
+                      builder: (context, String type, child) =>
+                       Column(
+                        children: [
+                          _buildRadioButtons(
+                              'Select Challan Type',
+                              ['Manual', 'Automatic'],
+                              type, (val) {
+                            // bloc.add(SelectCredit(selectCredit: val));
+
+                              if(val =='Automatic'){
+                                challanNo.text ='OC-0526-.01';
+                              }
+                              challanType.value = val;
+
+                          }),
+
+                          if(type =='Manual')
+                            _buildTextField(
+                                'Enter Challan Number', challanNo,),
+                        ],
+                      ),
+                    ),
+
+
                     _buildTextField('Weight', weightController),
                     _buildTextField('Brass', brassController),
                     _buildDropdown('Quary Selection', quarryOptions.map((e) => DropdownMenuItem(value: e['id'].toString(),child: Text(e['mine_name'],style: TextStyle(fontSize: 14,fontWeight: FontWeight.w400),))).toList(), selectedQuery,

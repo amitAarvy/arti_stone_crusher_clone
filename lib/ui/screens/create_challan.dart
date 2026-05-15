@@ -230,7 +230,7 @@ class _CreateChallanState extends State<CreateChallan> {
   ValueNotifier<bool> isLoadingButton1 = ValueNotifier(false);
 
   void fetchSubmitChallan({bool isPdf = false}) async {
-    if (transport == 'Without Transport') {
+    if (transport.value == 'Without Transport') {
       if (
           // selectedSupplier == null
           // ||
@@ -258,7 +258,7 @@ class _CreateChallanState extends State<CreateChallan> {
       }
     }
 
-    if (transport == 'With Transport') {
+    if (transport.value == 'With Transport') {
       if (vehicleType == '' ||
           siteAddressController.text.isEmpty ||
           selectParty == null ||
@@ -314,8 +314,8 @@ class _CreateChallanState extends State<CreateChallan> {
         "product_id": selectProduct,
         // "trips": selectTrips,
         "trip_time": selectTripsTime,
-        "transport_type": transport == 'With Transport' ? 1 : 2,
-        "plant_id": selectPlant,
+        "transport_type": transport.value == 'With Transport' ? 1 : 2,
+        "plant_id": selectPlant.value,
         "company_id": selectCompany,
         "weight": weightController.text,
         "measurement": measurementController.text,
@@ -346,9 +346,7 @@ class _CreateChallanState extends State<CreateChallan> {
       }
       // emit(state.copyWith(loginApiStatus: ApiStatus.loading));
       var res = await repo.createChallan(data);
-      print('api resoonse is ${res}');
       if (res['result']['success'].toString() == "1") {
-        print('check list is ${res['result']['data']}');
         Fluttertoast.showToast(msg: res['result']['msg']);
         if(isPdf) {
           final urls = res['result']['url'].toString();
@@ -394,9 +392,8 @@ class _CreateChallanState extends State<CreateChallan> {
   }
 
   void   fetchUpateChallan() async {
-    print('check it is ${selectTripsDate}');
 
-    if (transport == 'Without Transport') {
+    if (transport.value == 'Without Transport') {
       if (selectParty == null ||
           selectCompany == null ||
           weightController.text.isEmpty ||
@@ -421,7 +418,7 @@ class _CreateChallanState extends State<CreateChallan> {
       }
     }
 
-    if (transport == 'With Transport') {
+    if (transport.value == 'With Transport') {
       bool isEmptyCommonFields = vehicleType == '' ||
           siteAddressController.text.isEmpty ||
           weightController.text.isEmpty ||
@@ -435,7 +432,6 @@ class _CreateChallanState extends State<CreateChallan> {
           selectTripsTime == '' ||
           // selectTrips == null ||
           selectProduct == null;
-      print('check itis ${isEmptyCommonFields}');
 
       if (isEmptyCommonFields) {
         Fluttertoast.showToast(msg: 'Please fill the form');
@@ -471,7 +467,6 @@ class _CreateChallanState extends State<CreateChallan> {
 
     var decodeData = jsonDecode(selectVehicle.toString());
 
-    print('check tripd id is ${widget.data['trip_id']}');
     try {
       Map<String, dynamic> data = {
         "id": widget.data['trip_id'],
@@ -484,10 +479,10 @@ class _CreateChallanState extends State<CreateChallan> {
         "product_id": selectProduct,
         // "trips": selectTrips,
         "trip_time": selectTripsTime,
-        "transport_type": transport == 'With Transport' ? 1 : 2,
+        "transport_type": transport.value == 'With Transport' ? 1 : 2,
         // "vehicle_type":vehicleType =='Own Vehicle'?1:2,
         // "address":siteAddressController.text,
-        "plant_id": selectPlant,
+        "plant_id": selectPlant.value,
         // "supplier_id":selectedSupplier,
         "company_id": selectCompany,
         "weight": weightController.text,
@@ -515,9 +510,7 @@ class _CreateChallanState extends State<CreateChallan> {
       isLoadingButton.value = true;
       // emit(state.copyWith(loginApiStatus: ApiStatus.loading));
       var res = await repo.upateChallan(data);
-      print('api resoonse is ${res}');
       if (res['result']['success'].toString() == "1") {
-        print('check list is ${res['result']['data']}');
         Fluttertoast.showToast(msg: res['result']['msg']);
         widget.callback!();
       } else {
@@ -526,12 +519,10 @@ class _CreateChallanState extends State<CreateChallan> {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrintStack(stackTrace: s);
-      // emit(state.copyWith(loginApiStatus: ApiStatus.error, error: e.toString()));
     } finally {
 
       isLoadingButton.value = false;
       isLoadingButton1.value = false;
-      // emit(state.copyWith(loginApiStatus: ApiStatus.initial));
     }
   }
 
@@ -543,10 +534,10 @@ class _CreateChallanState extends State<CreateChallan> {
 
       selectProduct = null;
       selectTrips = '';
-      transport = '';
+      transport.value = '';
       vehicleType = ''; // or default value if any
       siteAddressController.clear();
-      selectPlant = null;
+      selectPlant.value = null;
       selectedSupplier = null;
       selectCompany = null;
       weightController.clear();
@@ -556,32 +547,17 @@ class _CreateChallanState extends State<CreateChallan> {
       selectTripsDate = DateTime.now().toString();
       selectTripsTime = DateFormat('hh:mm').format(DateTime.now()).toString();
     } else {
-      // selectParty = null;
-      // selectVehicle= null;
-      // vehicleNumberController.clear();
-
-      // selectProduct = null;
-      // selectTrips = '';
-      transport = '';
+      transport.value = '';
       vehicleType = ''; // or default value if any
       siteAddressController.clear();
-      // selectPlant = null;
       selectedSupplier = null;
-      // selectCompany = null;
-      // weightController.clear();
-      // measurementController.clear();
-      // creditType = ''; // or default
       selectPaymentMethod = '';
-      // selectTripsDate = DateTime.now().toString();
-      // selectTripsTime = DateFormat('hh:mm').format(DateTime.now()).toString();
     }
 
     setState(() {});
   }
 
   void editFieldUpdate(Map<String, dynamic> data1) {
-    print('check error is e ${data1}');
-    print('check error is ${vehicleList}');
     List vehicleListSelect = vehicleList
         .where(
             (e) => e['vehicle_id'].toString() == data1['vehicle_id'].toString())
@@ -589,7 +565,6 @@ class _CreateChallanState extends State<CreateChallan> {
 
     selectParty = data1['party_id'];
     if(vehicleListSelect.isNotEmpty){
-      print('check error is vehicle list ${vehicleListSelect}');
      selectVehicle = jsonEncode(vehicleListSelect[0]);
     }
     vehicleNumberController.text = widget.data['ownvehicleno']??'';
@@ -598,7 +573,7 @@ class _CreateChallanState extends State<CreateChallan> {
     selectProduct = data1['product_id'];
     selectTrips = widget.data['trips'];
     selectTripsTime = '${data1['trip_time']}';
-    transport = data1['transport_type'].toString() == '1'
+    transport.value = data1['transport_type'].toString() == '1'
         ? "With Transport"
         : data1['transport_type'].toString() == '2'
             ? "Without Transport"
@@ -609,7 +584,7 @@ class _CreateChallanState extends State<CreateChallan> {
             ? 'Supplier Vehicle'
             : ''; // or default value if any
     siteAddressController.text = data1['address'].toString();
-    selectPlant = data1['plant_id'].toString();
+    selectPlant.value = data1['plant_id'].toString();
 
     selectCompany = data1['company_id'];
     weightController.text = data1['weight'];
@@ -634,11 +609,15 @@ class _CreateChallanState extends State<CreateChallan> {
   }
 
   // late ChallanBloc bloc;
-  String transport = 'With Transport';
+  // String transport = 'With Transport';
+  ValueNotifier<String> transport = ValueNotifier('With Transport');
   String vehicleType = '';
   String creditType = 'Non Credit';
+  String challanType = '';
   String selectPaymentMethod = '';
-  String? selectPlant;
+  // String? selectPlant;
+  ValueNotifier<String?> selectPlant = ValueNotifier(null);
+
   String selectTripsDate = DateTime.now().toString();
   String selectTripsTime =
       DateFormat('hh:mm').format(DateTime.now()).toString();
@@ -654,6 +633,9 @@ class _CreateChallanState extends State<CreateChallan> {
   int trips = 1;
 
   final TextEditingController siteAddressController = TextEditingController();
+  final TextEditingController siteNameController = TextEditingController();
+  final TextEditingController challanNo = TextEditingController();
+  final TextEditingController remark = TextEditingController();
   final TextEditingController partyController = TextEditingController();
   final TextEditingController vehicleNumberController = TextEditingController();
   final TextEditingController tripDateController = TextEditingController();
@@ -706,267 +688,275 @@ class _CreateChallanState extends State<CreateChallan> {
                   padding: const EdgeInsets.only(top: 20),
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          children: [
-                            _buildRadioRow(
-                                'Select Transport',
-                                ['With Transport', 'Without Transport'],
-                                transport, (val) {
-                              print('value is$val');
-                              resetChallanForm();
-                              setState(() {
-                                transport = val;
-                              });
-                            }),
-
-                            _buildDropdownRow(
-                              'Select Plant',
-                              plantList
-                                  .map((e) => DropdownMenuItem(
-                                        child: Text(e['plant_name'],
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 14)),
-                                        value: e['id'].toString(),
-                                      ))
-                                  .toList(),
-                              selectPlant == '' ? null : selectPlant,
-                              (val) {
-                                setState(() {
-                                  selectPlant = val;
-                                });
-                                // bloc.add(SelectPlant(selectPlant: val));
-                              },
-                            ),
-
-                            //
-                            // BlocBuilder<ChallanBloc, ChallanState>(
-                            //   buildWhen: (previous, current) =>
-                            //   previous.plantList != current.plantList ||
-                            //       previous.selectPlant != current.selectPlant,
-                            //   builder: (context, state) {
-                            //     return ;
-                            //   },
-                            // ),
-
-                            _buildDropdownRow(
-                              readOnly: widget.isEdit,
-                                'Select Company',
-                                companyList
-                                    .map(
-                                      (e) => DropdownMenuItem(
-                                        child: Text(
-                                          e['company_name'],
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 14),
-                                        ),
-                                        value: e['tbl_company_id'].toString(),
-                                      ),
-                                    )
-                                    .toList(),
-                                selectCompany == '' ? null : selectCompany,
-                                (val) {
-                              setState(() {
-                                selectCompany = val;
-                              });
-                              // bloc.add(SelectCompany(selectCompany: val));
-                            }),
-                            // BlocBuilder<ChallanBloc, ChallanState>(
-                            //   buildWhen: (previous,current)=>previous.selectCompany != current.selectCompany || previous.companyList != current.companyList,
-                            //   builder: (context, state) {
-                            //     return
-                            //
-                            //   },
-                            // ),
-
-                            if (transport.toString() == 'With Transport') ...[
-                              _buildTextFieldRow(
-                                  'Enter Site Address', siteAddressController,
-                                  (value) {
-                                // bloc.add(SiteAddress(siteAddress: value));
+                    child: ValueListenableBuilder(
+                      valueListenable: transport,
+                      builder: (context, selectedTransport, child) =>
+                       Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            children: [
+                              _buildRadioRow(
+                                  'Select Transport',
+                                  ['With Transport', 'Without Transport'],
+                                  selectedTransport, (val) {
+                                resetChallanForm();
+                                // setState(() {
+                                  transport.value = val;
+                                // });
                               }),
-                              // BlocBuilder<ChallanBloc, ChallanState>(
-                              //   buildWhen: (previous,current)=>previous.siteAddress != current.siteAddress,
-                              //   builder: (context, state) {
-                              //     return  ;
-                              //   },
-                              // ),
 
+                              ValueListenableBuilder(
+                                valueListenable: selectPlant,
+                                builder: (context,String? selectedPlant, child) =>
+                                _buildDropdownRow(
+                                  'Select Plant',
+                                  plantList.map((e) => DropdownMenuItem(
+                                            child: Text(e['plant_name'],
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 14)),
+                                            value: e['id'].toString(),
+                                          ))
+                                      .toList(),
+                                  selectedPlant == '' ? null : selectedPlant,
+                                  (val) {
+                                    // setState(() {
+                                      selectPlant.value = val;
+                                    // });
+                                    // bloc.add(SelectPlant(selectPlant: val));
+                                  },
+                                ),
+                              ),
+
+                              // _buildDropdownRow(
+                              //   readOnly: widget.isEdit,
+                              //     'Select Company',
+                              //     companyList
+                              //         .map(
+                              //           (e) => DropdownMenuItem(
+                              //             child: Text(
+                              //               e['company_name'],
+                              //               style: TextStyle(
+                              //                   fontWeight: FontWeight.w400,
+                              //                   fontSize: 14),
+                              //             ),
+                              //             value: e['tbl_company_id'].toString(),
+                              //           ),
+                              //         )
+                              //         .toList(),
+                              //     selectCompany == '' ? null : selectCompany,
+                              //     (val) {
+                              //   setState(() {
+                              //     selectCompany = val;
+                              //   });
+                              //   // bloc.add(SelectCompany(selectCompany: val));
+                              // }),
                               // BlocBuilder<ChallanBloc, ChallanState>(
-                              //   buildWhen: (previous,current)=>previous.selectCompany != current.selectCompany,
+                              //   buildWhen: (previous,current)=>previous.selectCompany != current.selectCompany || previous.companyList != current.companyList,
                               //   builder: (context, state) {
                               //     return
                               //
-                              //       BlocBuilder<ChallanBloc, ChallanState>(
-                              //         buildWhen: (previous,current)=>previous.companyList != current.companyList,
-                              //         builder: (context, state) =>
-                              //             _buildDropdownRow('Select Company', state.companyList.map((e) => DropdownMenuItem(child: Text(e['company_name']),value: e['tbl_company_id'].toString(),),).toList(), state.selectCompany,
-                              //                     (val) {
-                              //                   bloc.add(SelectCompany(selectCompany: val));
-                              //                 }),
-                              //       );
                               //   },
                               // ),
-
-                              Column(
-                                children: [
-                                  _buildRadioRow(
-                                      'Select Own/Supplier',
-                                      ['Own Vehicle', 'Supplier Vehicle'],
-                                      vehicleType, (val) {
-                                    setState(() {
-                                      vehicleType = val;
-                                    });
-                                    // bloc.add(SelectSupplier(selectSupplier: val));
+                              _buildTextFieldRow(
+                                  'Enter Site Name', siteNameController,
+                                      (value) {
+                                    // bloc.add(SiteAddress(siteAddress: value));
                                   }),
+                              // Blo
 
-                                  PartyDropdown(content: partYList, title: 'Select Party', valueId: 'party_id', valueText: 'company_name', onChanged: (value) {
-                                    setState(() {
-                                      selectParty = value;
-                                    });
-                                  },value: selectParty,showTitle: true,),
+                              if (selectedTransport.toString() == 'With Transport') ...[
+                                _buildTextFieldRow(
+                                    'Enter Site Address', siteAddressController,
+                                    (value) {
+                                  // bloc.add(SiteAddress(siteAddress: value));
+                                }),
 
-                                  // DropdownButtonHideUnderline(
-                                  //   child: DropdownButton2<String>(
-                                  //     isExpanded: true,
-                                  //
-                                  //     hint: Text(
-                                  //       'Select Item',
-                                  //       style: TextStyle(
-                                  //         fontSize: 14,
-                                  //         color: Theme.of(context).hintColor,
-                                  //       ),
-                                  //     ),
-                                  //     items: partYList
-                                  //         .map((item) => DropdownMenuItem(
-                                  //               value:
-                                  //                   item['party_id'].toString(),
-                                  //               child: Text(
-                                  //                 item['company_name']
-                                  //                     .toString(),
-                                  //                 style: const TextStyle(
-                                  //                   fontSize: 14,
-                                  //                 ),
-                                  //               ),
-                                  //             ))
-                                  //         .toList(),
-                                  //     value: selectParty,
-                                  //     onChanged: (value) {
-                                  //       print('check value is $value');
-                                  //       setState(() {
-                                  //         selectParty = value;
-                                  //       });
-                                  //     },
-                                  //     buttonStyleData: const ButtonStyleData(
-                                  //       padding: EdgeInsets.symmetric(
-                                  //           horizontal: 16),
-                                  //       height: 40,
-                                  //       // width: 200,
-                                  //     ),
-                                  //
-                                  //     dropdownStyleData:
-                                  //         const DropdownStyleData(
-                                  //       maxHeight: 200,
-                                  //     ),
-                                  //     menuItemStyleData:
-                                  //         const MenuItemStyleData(
-                                  //       height: 40,
-                                  //     ),
-                                  //     dropdownSearchData: DropdownSearchData(
-                                  //       searchController: searchParty,
-                                  //       searchInnerWidgetHeight: 50,
-                                  //       searchInnerWidget: Container(
-                                  //         height: 50,
-                                  //         padding: const EdgeInsets.only(
-                                  //           top: 8,
-                                  //           bottom: 4,
-                                  //           right: 8,
-                                  //           left: 8,
-                                  //         ),
-                                  //         child: TextFormField(
-                                  //           expands: true,
-                                  //           maxLines: null,
-                                  //           controller: searchParty,
-                                  //           decoration: InputDecoration(
-                                  //             isDense: true,
-                                  //             contentPadding:
-                                  //                 const EdgeInsets.symmetric(
-                                  //               horizontal: 10,
-                                  //               vertical: 8,
-                                  //             ),
-                                  //             hintText: 'Search for an item...',
-                                  //             hintStyle:
-                                  //                 const TextStyle(fontSize: 12),
-                                  //             border: OutlineInputBorder(
-                                  //               borderRadius:
-                                  //                   BorderRadius.circular(8),
-                                  //             ),
-                                  //           ),
-                                  //         ),
-                                  //       ),
-                                  //       searchMatchFn: (item, searchValue) {
-                                  //         // Convert search to lowercase
-                                  //         final search = searchValue.toLowerCase();
-                                  //
-                                  //         // item.child is a widget (Text in your case)
-                                  //         if (item.child is Text) {
-                                  //           final itemText = (item.child as Text).data?.toLowerCase() ?? '';
-                                  //           print('check itme text is ${itemText} ');
-                                  //           return itemText.contains(search);
-                                  //         }
-                                  //
-                                  //         // If not a Text widget, fallback to value
-                                  //         final itemValue = item.value?.toLowerCase() ?? '';
-                                  //         return itemValue.contains(search);
-                                  //       },
-                                  //     ),
-                                  //     onMenuStateChange: (isOpen) {
-                                  //       if (!isOpen) {
-                                  //         searchParty.clear();
-                                  //       }
-                                  //     },
-                                  //   ),
-                                  // ),
+                                Column(
+                                  children: [
+                                    _buildRadioRow(
+                                        'Select Own/Supplier',
+                                        ['Own Vehicle', 'Supplier Vehicle'],
+                                        vehicleType, (val) {
+                                      setState(() {
+                                        vehicleType = val;
+                                      });
+                                      // bloc.add(SelectSupplier(selectSupplier: val));
+                                    }),
 
-                                  // _buildDropdownRow(
-                                  //     'Select Party',
-                                  //     partYList
-                                  //         .map(
-                                  //           (e) => DropdownMenuItem(
-                                  //             child: Text(
-                                  //               e['company_name'].toString(),
-                                  //               style: TextStyle(
-                                  //                   fontWeight: FontWeight.w400,
-                                  //                   fontSize: 14),
-                                  //             ),
-                                  //             value: e['party_id'].toString(),
-                                  //           ),
-                                  //         )
-                                  //         .toList(),
-                                  //     selectParty == '' ? null : selectParty,
-                                  //     (val) {
-                                  //   setState(() {
-                                  //     selectParty = val;
-                                  //   });
-                                  //   // bloc.add(SelectParty(selectParty: val));
-                                  // }),
+                                    PartyDropdown(content: partYList, title: 'Select Customer', valueId: 'party_id', valueText: 'company_name', onChanged: (value) {
+                                      setState(() {
+                                        selectParty = value;
+                                      });
+                                    },value: selectParty,showTitle: true,),
 
-                                  // BlocBuilder<ChallanBloc, ChallanState>(
-                                  //   buildWhen: (previous,current)=>previous.selectParty != current.selectParty || previous.listParty != current.listParty,
-                                  //   builder: (context, state) {
-                                  //     return
-                                  //   },
-                                  // ),
+                                    Column(
+                                      children: [
+                                        _buildRadioRow(
+                                            'Select Challan Type',
+                                            ['Manual', 'Automatic'],
+                                            challanType, (val) {
+                                          // bloc.add(SelectCredit(selectCredit: val));
+                                          setState(() {
+                                            if(val =='Automatic'){
+                                              challanNo.text ='OC-0526-.01';
+                                            }
+                                            challanType = val;
+                                          });
+                                        }),
 
-                                  _buildDropdownRow(
-                                      'Select Vehicle',
-                                      vehicleList
-                                          .map(
-                                            (e) => DropdownMenuItem(
+                                        if(challanType =='Manual')
+                                        _buildTextFieldRow(
+                                            'Enter Challan Number', challanNo,
+                                                (value) {
+                                              // bloc.add(SiteAddress(siteAddress: value));
+                                            }),
+                                      ],
+                                    ),
+
+                                    // DropdownButtonHideUnderline(
+                                    //   child: DropdownButton2<String>(
+                                    //     isExpanded: true,
+                                    //
+                                    //     hint: Text(
+                                    //       'Select Item',
+                                    //       style: TextStyle(
+                                    //         fontSize: 14,
+                                    //         color: Theme.of(context).hintColor,
+                                    //       ),
+                                    //     ),
+                                    //     items: partYList
+                                    //         .map((item) => DropdownMenuItem(
+                                    //               value:
+                                    //                   item['party_id'].toString(),
+                                    //               child: Text(
+                                    //                 item['company_name']
+                                    //                     .toString(),
+                                    //                 style: const TextStyle(
+                                    //                   fontSize: 14,
+                                    //                 ),
+                                    //               ),
+                                    //             ))
+                                    //         .toList(),
+                                    //     value: selectParty,
+                                    //     onChanged: (value) {
+                                    //       print('check value is $value');
+                                    //       setState(() {
+                                    //         selectParty = value;
+                                    //       });
+                                    //     },
+                                    //     buttonStyleData: const ButtonStyleData(
+                                    //       padding: EdgeInsets.symmetric(
+                                    //           horizontal: 16),
+                                    //       height: 40,
+                                    //       // width: 200,
+                                    //     ),
+                                    //
+                                    //     dropdownStyleData:
+                                    //         const DropdownStyleData(
+                                    //       maxHeight: 200,
+                                    //     ),
+                                    //     menuItemStyleData:
+                                    //         const MenuItemStyleData(
+                                    //       height: 40,
+                                    //     ),
+                                    //     dropdownSearchData: DropdownSearchData(
+                                    //       searchController: searchParty,
+                                    //       searchInnerWidgetHeight: 50,
+                                    //       searchInnerWidget: Container(
+                                    //         height: 50,
+                                    //         padding: const EdgeInsets.only(
+                                    //           top: 8,
+                                    //           bottom: 4,
+                                    //           right: 8,
+                                    //           left: 8,
+                                    //         ),
+                                    //         child: TextFormField(
+                                    //           expands: true,
+                                    //           maxLines: null,
+                                    //           controller: searchParty,
+                                    //           decoration: InputDecoration(
+                                    //             isDense: true,
+                                    //             contentPadding:
+                                    //                 const EdgeInsets.symmetric(
+                                    //               horizontal: 10,
+                                    //               vertical: 8,
+                                    //             ),
+                                    //             hintText: 'Search for an item...',
+                                    //             hintStyle:
+                                    //                 const TextStyle(fontSize: 12),
+                                    //             border: OutlineInputBorder(
+                                    //               borderRadius:
+                                    //                   BorderRadius.circular(8),
+                                    //             ),
+                                    //           ),
+                                    //         ),
+                                    //       ),
+                                    //       searchMatchFn: (item, searchValue) {
+                                    //         // Convert search to lowercase
+                                    //         final search = searchValue.toLowerCase();
+                                    //
+                                    //         // item.child is a widget (Text in your case)
+                                    //         if (item.child is Text) {
+                                    //           final itemText = (item.child as Text).data?.toLowerCase() ?? '';
+                                    //           print('check itme text is ${itemText} ');
+                                    //           return itemText.contains(search);
+                                    //         }
+                                    //
+                                    //         // If not a Text widget, fallback to value
+                                    //         final itemValue = item.value?.toLowerCase() ?? '';
+                                    //         return itemValue.contains(search);
+                                    //       },
+                                    //     ),
+                                    //     onMenuStateChange: (isOpen) {
+                                    //       if (!isOpen) {
+                                    //         searchParty.clear();
+                                    //       }
+                                    //     },
+                                    //   ),
+                                    // ),
+
+                                    // _buildDropdownRow(
+                                    //     'Select Party',
+                                    //     partYList
+                                    //         .map(
+                                    //           (e) => DropdownMenuItem(
+                                    //             child: Text(
+                                    //               e['company_name'].toString(),
+                                    //               style: TextStyle(
+                                    //                   fontWeight: FontWeight.w400,
+                                    //                   fontSize: 14),
+                                    //             ),
+                                    //             value: e['party_id'].toString(),
+                                    //           ),
+                                    //         )
+                                    //         .toList(),
+                                    //     selectParty == '' ? null : selectParty,
+                                    //     (val) {
+                                    //   setState(() {
+                                    //     selectParty = val;
+                                    //   });
+                                    //   // bloc.add(SelectParty(selectParty: val));
+                                    // }),
+
+                                    // BlocBuilder<ChallanBloc, ChallanState>(
+                                    //   buildWhen: (previous,current)=>previous.selectParty != current.selectParty || previous.listParty != current.listParty,
+                                    //   builder: (context, state) {
+                                    //     return
+                                    //   },
+                                    // ),
+
+
+                                    // own vehicle
+                                    if (vehicleType.toString() ==
+                                        'Own Vehicle') ...[
+
+                                      _buildDropdownRow(
+                                          'Select Vehicle',
+                                          vehicleList
+                                              .map(
+                                                (e) => DropdownMenuItem(
                                               child: Text(
                                                 e['vehicle_no'],
                                                 style: TextStyle(
@@ -976,605 +966,595 @@ class _CreateChallanState extends State<CreateChallan> {
                                               value: jsonEncode(e),
                                             ),
                                           )
-                                          .toList(),
-                                      selectVehicle == ''
-                                          ? null
-                                          : selectVehicle, (val) {
-                                    var data = jsonDecode(val);
-                                    print('check value is ${data}');
+                                              .toList(),
+                                          selectVehicle == ''
+                                              ? null
+                                              : selectVehicle, (val) {
+                                        var data = jsonDecode(val);
+                                        print('check value is ${data}');
 
-                                    setState(() {
-                                      vehicleNumberController.text =
-                                          data['vehicle_no'].toString();
-                                      selectVehicle = val;
-                                    });
-                                    fetchMeasurementId(data['vehicle_id']);
-                                    // bloc.add(VehicleNo(vehicleNo:data['vehicle_no'].toString()));
-                                    //
-                                    // bloc.add(SelectVehicle(selectVehicle:val ));
-                                  }),
-                                  // BlocBuilder<ChallanBloc, ChallanState>(
-                                  //   buildWhen: (previous,current)=> previous.vehicleList != current.vehicleList ||previous.selectVehicle != current.selectVehicle,
-                                  //   builder: (context, state) {
-                                  //     return
-                                  //       ;
-                                  //   },
-                                  // ),
+                                        setState(() {
+                                          vehicleNumberController.text =
+                                              data['vehicle_no'].toString();
+                                          selectVehicle = val;
+                                        });
+                                        fetchMeasurementId(data['vehicle_id']);
+                                        // bloc.add(VehicleNo(vehicleNo:data['vehicle_no'].toString()));
+                                        //
+                                        // bloc.add(SelectVehicle(selectVehicle:val ));
+                                      }),
+                                      _buildTextFieldRow(
+                                        'Enter Vehicle Number',
+                                        vehicleNumberController,
+                                        (value) {
+                                          // bloc.add(VehicleNo(vehicleNo:value ));
+                                        },
+                                      )
+                                      // BlocBuilder<ChallanBloc, ChallanState>(
+                                      //   buildWhen: (previous,current)=>previous.vehicleNo != current.vehicleNo,
+                                      //   builder: (context, state) {
+                                      //     return  ;
+                                      //   },
+                                      // ),
+                                    ],
 
-                                  // own vehicle
-                                  if (vehicleType.toString() ==
-                                      'Own Vehicle') ...[
-                                    _buildTextFieldRow(
-                                      'Enter Vehicle Number',
-                                      vehicleNumberController,
-                                      (value) {
-                                        // bloc.add(VehicleNo(vehicleNo:value ));
-                                      },
-                                    )
-                                    // BlocBuilder<ChallanBloc, ChallanState>(
-                                    //   buildWhen: (previous,current)=>previous.vehicleNo != current.vehicleNo,
-                                    //   builder: (context, state) {
-                                    //     return  ;
-                                    //   },
-                                    // ),
+                                    if (vehicleType.toString() ==
+                                        'Supplier Vehicle') ...[
+                                          SizedBox(height: 10,),
+                                      PartyDropdown(content: supplierList, title: 'Select Supplier'
+                                          , valueId: 'id', valueText: 'supplier_name', onChanged: (value) {
+                                        setState(() {
+                                          selectedSupplier = value;
+                                        });
+                                      },value: selectedSupplier,showTitle: true,),
+                                      SizedBox(height: 10,),
+                                      // _buildDropdownRow(
+                                      //     'Select Supplier',
+                                      //     supplierList
+                                      //         .map(
+                                      //           (e) => DropdownMenuItem(
+                                      //             child: Text(
+                                      //               e['supplier_name'].toString(),
+                                      //               style: TextStyle(
+                                      //                   fontWeight:
+                                      //                       FontWeight.w400,
+                                      //                   fontSize: 14),
+                                      //             ),
+                                      //             value: e['id'].toString(),
+                                      //           ),
+                                      //         )
+                                      //         .toList(),
+                                      //     selectedSupplier == ''
+                                      //         ? null
+                                      //         : selectedSupplier, (val) {
+                                      //   setState(() {
+                                      //     selectedSupplier = val;
+                                      //   });
+                                      //   // bloc.add(SelectedSupplier(selectedSupplier: val));
+                                      // })
+
+                                      // // BlocBuilder<ChallanBloc, ChallanState>(
+                                      // //   buildWhen: (previous,current)=>previous.supplierList != current.supplierList || previous.selectedSupplier != current.selectedSupplier,
+                                      // //   builder: (context, state) {
+                                      // //     print('check value is %${state.selectedSupplier}');
+                                      // //     return   _buildDropdownRow('Select Supplier', state.supplierList.map((e) => DropdownMenuItem(child: Text(e['supplier_name'].toString(),style: TextStyle(fontWeight: FontWeight.w400,fontSize: 14),),value: e['id'].toString(),),).toList(),
+                                      // //         state.selectedSupplier==''?null:state.selectedSupplier,
+                                      // //             (val) {
+                                      // //           bloc.add(SelectedSupplier(selectedSupplier: val));
+                                      // //         });
+                                      //   },
+                                      // ),
+                                    ]
                                   ],
+                                )
+                              ],
 
-                                  if (vehicleType.toString() ==
-                                      'Supplier Vehicle') ...[
-                                    PartyDropdown(content: supplierList, title: 'Select Supplier'
-                                        , valueId: 'id', valueText: 'supplier_name', onChanged: (value) {
-                                      setState(() {
-                                        selectedSupplier = value;
-                                      });
-                                    },value: selectedSupplier,showTitle: true,),
-                                    // _buildDropdownRow(
-                                    //     'Select Supplier',
-                                    //     supplierList
-                                    //         .map(
-                                    //           (e) => DropdownMenuItem(
-                                    //             child: Text(
-                                    //               e['supplier_name'].toString(),
-                                    //               style: TextStyle(
-                                    //                   fontWeight:
-                                    //                       FontWeight.w400,
-                                    //                   fontSize: 14),
-                                    //             ),
-                                    //             value: e['id'].toString(),
-                                    //           ),
-                                    //         )
-                                    //         .toList(),
-                                    //     selectedSupplier == ''
-                                    //         ? null
-                                    //         : selectedSupplier, (val) {
-                                    //   setState(() {
-                                    //     selectedSupplier = val;
-                                    //   });
-                                    //   // bloc.add(SelectedSupplier(selectedSupplier: val));
-                                    // })
+                              // without transport
 
-                                    // // BlocBuilder<ChallanBloc, ChallanState>(
-                                    // //   buildWhen: (previous,current)=>previous.supplierList != current.supplierList || previous.selectedSupplier != current.selectedSupplier,
-                                    // //   builder: (context, state) {
-                                    // //     print('check value is %${state.selectedSupplier}');
-                                    // //     return   _buildDropdownRow('Select Supplier', state.supplierList.map((e) => DropdownMenuItem(child: Text(e['supplier_name'].toString(),style: TextStyle(fontWeight: FontWeight.w400,fontSize: 14),),value: e['id'].toString(),),).toList(),
-                                    // //         state.selectedSupplier==''?null:state.selectedSupplier,
-                                    // //             (val) {
-                                    // //           bloc.add(SelectedSupplier(selectedSupplier: val));
-                                    // //         });
-                                    //   },
-                                    // ),
-                                  ]
-                                ],
-                              )
-                            ],
+                              if (selectedTransport.toString() ==
+                                  'Without Transport') ...[
+                                PartyDropdown(content: partYList, title: 'Select Customer', valueId: 'party_id', valueText: 'company_name', onChanged: (value) {
+                                  setState(() {
+                                    selectParty = value;
+                                  });
+                                },value: selectParty,showTitle: true,),
 
-                            // without transport
 
-                            if (transport.toString() ==
-                                'Without Transport') ...[
-                              PartyDropdown(content: partYList, title: 'Select Party', valueId: 'party_id', valueText: 'company_name', onChanged: (value) {
-                                setState(() {
-                                  selectParty = value;
-                                });
-                              },value: selectParty,showTitle: true,),
+                                // _buildDropdownRow(
+                                //     'Select Party',
+                                //     partYList
+                                //         .map(
+                                //           (e) => DropdownMenuItem(
+                                //             child: Text(
+                                //               e['company_name'].toString(),
+                                //               style: TextStyle(
+                                //                   fontWeight: FontWeight.w400,
+                                //                   fontSize: 14),
+                                //             ),
+                                //             value: e['party_id'].toString(),
+                                //           ),
+                                //         )
+                                //         .toList(),
+                                //     selectParty, (val) {
+                                //   setState(() {
+                                //     selectParty = val;
+                                //   });
+                                //   // bloc.add(SelectParty(selectParty: val));
+                                // }),
 
+                                // BlocBuilder<ChallanBloc, ChallanState>(
+                                //   buildWhen: (previous,current)=>previous.listParty != current.listParty || previous.selectParty != current.selectParty,
+                                //   builder: (context, state) {
+                                //     return   ;
+                                //   },
+                                // ),
+
+                                _buildDropdownRow(
+                                    'Select Vehicle',
+                                    vehicleList
+                                        .map(
+                                          (e) => DropdownMenuItem(
+                                            child: Text(
+                                              e['vehicle_no'],
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w400,
+                                                  fontSize: 14),
+                                            ),
+                                            value: jsonEncode(e),
+                                          ),
+                                        )
+                                        .toList(),
+                                    selectVehicle == '' ? null : selectVehicle,
+                                    (val) {
+                                  // vehicleNumberController.text = e[]
+                                  // bloc.add(SelectVehicle(selectVehicle: val));
+                                  var data = jsonDecode(val);
+                                  print('check value is ${data}');
+                                  setState(() {
+                                    vehicleNumberController.text =
+                                        data['vehicle_no'].toString();
+                                    selectVehicle = val;
+                                  });
+                                  // bloc.add(VehicleNo(vehicleNo:data['vehicle_no'].toString()));
+                                  //
+                                  // bloc.add(SelectVehicle(selectVehicle:val ));
+                                }),
+
+                                // BlocBuilder<ChallanBloc, ChallanState>(
+                                //   buildWhen: (previous,current)=>previous.vehicleList != current.vehicleList || previous.selectVehicle != current.selectVehicle,
+                                //   builder: (context, state) {
+                                //     return
+                                //       _buildDropdownRow('Select Vehicle',
+                                //           state.vehicleList.map((e) => DropdownMenuItem(child: Text(e['vehicle_no'],style: TextStyle(fontWeight: FontWeight.w400,fontSize: 14),),value: jsonEncode(e),),).toList(),
+                                //           state.selectVehicle==''?null:state.selectVehicle,
+                                //               (val) {
+                                //             // vehicleNumberController.text = e[]
+                                //             // bloc.add(SelectVehicle(selectVehicle: val));
+                                //             var data  = jsonDecode(val);
+                                //             print('check value is ${data}');
+                                //             bloc.add(VehicleNo(vehicleNo:data['vehicle_no'].toString()));
+                                //             vehicleNumberController.text =data['vehicle_no'].toString() ;
+                                //             bloc.add(SelectVehicle(selectVehicle:val ));
+                                //           });
+                                //   },
+                                // ),
+
+                                _buildTextFieldRow(
+                                  'Enter Vehicle Number',
+                                  vehicleNumberController,
+                                  (value) {
+                                    // bloc.add(VehicleNo(vehicleNo:value ));
+                                  },
+                                )
+
+                                // BlocBuilder<ChallanBloc, ChallanState>(
+                                //   buildWhen: (previous,current)=>previous.vehicleNo != current.vehicleNo,
+                                //   builder: (context, state) {
+                                //     return  ;
+                                //   },
+                                // ),
+                              ],
 
                               // _buildDropdownRow(
-                              //     'Select Party',
-                              //     partYList
+                              //     'Trips',
+                              //     List.generate(10, (i) => '${i + 1}')
                               //         .map(
                               //           (e) => DropdownMenuItem(
                               //             child: Text(
-                              //               e['company_name'].toString(),
+                              //               e,
                               //               style: TextStyle(
                               //                   fontWeight: FontWeight.w400,
                               //                   fontSize: 14),
                               //             ),
-                              //             value: e['party_id'].toString(),
+                              //             value: e.toString(),
                               //           ),
                               //         )
                               //         .toList(),
-                              //     selectParty, (val) {
+                              //     selectTrips == '' ? null : selectTrips, (val) {
                               //   setState(() {
-                              //     selectParty = val;
+                              //     selectTrips = val;
                               //   });
-                              //   // bloc.add(SelectParty(selectParty: val));
+                              //   // bloc.add(SelectTrips(selectTrips: val));
                               // }),
 
                               // BlocBuilder<ChallanBloc, ChallanState>(
-                              //   buildWhen: (previous,current)=>previous.listParty != current.listParty || previous.selectParty != current.selectParty,
+                              //   buildWhen: (previous,current)=>previous.selectTrips != current.selectTrips,
+                              //   builder: (context, state) {
+                              //
+                              //     return   ;
+                              //   },
+                              // ),
+
+                              InkWell(
+                                  onTap: () {
+                                    Utils.datePickerCommon(context).then(
+                                      (value) {
+                                        print('check date picker value ${value}');
+                                        setState(() {
+                                          if (widget.isEdit) {
+                                            if (value == null) {
+                                              return;
+                                            }
+                                            selectTripsDate =
+                                                DateFormat('dd-MM-yyyy')
+                                                    .format(value);
+                                          } else {
+                                            if (value == null) {
+                                              return;
+                                            }
+                                            selectTripsDate = value.toString();
+                                          }
+                                        });
+                                      },
+                                    );
+                                  },
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Select Trip Date:',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.grey),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Container(
+                                        height: 40,
+                                        width: 1.sw,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            border:
+                                                Border.all(color: K.darkOrange)),
+                                        child: Row(
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.only(left: 10),
+                                              child: Center(
+                                                  child: Text(
+                                                widget.isEdit
+                                                    ? DateFormat('dd-MM-yyyy')
+                                                    .format(DateTime.parse(
+                                                    DateFormat(
+                                                        'dd-MM-yyyy')
+                                                        .parseStrict(
+                                                        selectTripsDate)
+                                                        .toString()))
+                                                    : selectTripsDate == ''
+                                                        ? ''
+                                                        : DateFormat('dd-MM-yyyy')
+                                                            .format(DateTime.parse(
+                                                                selectTripsDate)),
+                                                style: TextStyle(
+                                                    color: Colors.black),
+                                              )),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  )),
+
+                              // BlocBuilder<ChallanBloc, ChallanState>(
+                              //   buildWhen: (previous,current)=>previous != current.selectTrips,
+                              //   builder: (context, state) {
+                              //     return    ;
+                              //   },
+                              // ),
+                              SizedBox(height: 10,),
+                              InkWell(
+                                  onTap: () {
+                                    Utils.timePickerCommon(context).then(
+                                      (value) {
+                                        print(
+                                            'check time picker value ${value!.format(context)}');
+                                        setState(() {
+                                          selectTripsTime =
+                                              value!.format(context).toString();
+                                        });
+                                      },
+                                    );
+                                  },
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Select Time:',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.grey),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Container(
+                                        height: 40,
+                                        width: 1.sw,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            border:
+                                                Border.all(color: K.darkOrange)),
+                                        child: Row(
+                                          children: [
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.only(left: 10),
+                                              child: Center(
+                                                  child: Text(
+                                                selectTripsTime == ''
+                                                    ? ''
+                                                    : selectTripsTime,
+                                                style: TextStyle(
+                                                    color: Colors.black),
+                                              )),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  )),
+
+                              // BlocBuilder<ChallanBloc, ChallanState>(
+                              //   buildWhen: (previous,current)=>previous.selectTripsTime != current.selectTripsTime,
+                              //   builder: (context, state) {
+                              //     return  ;
+                              //   },
+                              // ),
+
+                              // BlocBuilder<ChallanBloc, ChallanState>(
+                              //   buildWhen: (previous,current)=>previous != current.selectTrips,
+                              //   builder: (context, state) {
+                              //     return _buildTextFieldRow('Select Time', timeController,(value) {
+                              //
+                              //     },);
+                              //   },
+                              // ),
+
+                              _buildDropdownRow(
+                                  'Select Product',
+                                  productList
+                                      .map(
+                                        (e) => DropdownMenuItem(
+                                          child: Text(
+                                            e['title'].toString(),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 14),
+                                          ),
+                                          value: e['product_id'].toString(),
+                                        ),
+                                      )
+                                      .toList(),
+                                  selectProduct == '' ? null : selectProduct,
+                                  (val) {
+                                setState(() {
+                                  selectProduct = val;
+                                });
+                                // bloc.add(SelectProduct(selectProduct: val));
+                              }),
+                              // BlocBuilder<ChallanBloc, ChallanState>(
+                              //   // buildWhen: (previous,current)=>previous.productList != current.productList || previous.selectProduct != current.selectProduct,
+                              //   builder: (context, state) {
+                              //     print('check product list is ${state.productList}');
+                              //     return ;
+                              //   },
+                              // ),
+
+                              _buildTextFieldRow(
+                                keyBoardType: TextInputType.number,
+                                'Measurement',
+                                measurementController,
+
+                                (value) {
+                                  // bloc.add(Measurement(measurement: value));
+                                },
+                              ),
+
+                              // BlocBuilder<ChallanBloc, ChallanState>(
+                              //   buildWhen: (previous,current)=>previous.measurement != current.measurement,
                               //   builder: (context, state) {
                               //     return   ;
                               //   },
                               // ),
 
-                              _buildDropdownRow(
-                                  'Select Vehicle',
-                                  vehicleList
-                                      .map(
-                                        (e) => DropdownMenuItem(
-                                          child: Text(
-                                            e['vehicle_no'],
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 14),
-                                          ),
-                                          value: jsonEncode(e),
-                                        ),
-                                      )
-                                      .toList(),
-                                  selectVehicle == '' ? null : selectVehicle,
-                                  (val) {
-                                // vehicleNumberController.text = e[]
-                                // bloc.add(SelectVehicle(selectVehicle: val));
-                                var data = jsonDecode(val);
-                                print('check value is ${data}');
-                                setState(() {
-                                  vehicleNumberController.text =
-                                      data['vehicle_no'].toString();
-                                  selectVehicle = val;
-                                });
-                                // bloc.add(VehicleNo(vehicleNo:data['vehicle_no'].toString()));
-                                //
-                                // bloc.add(SelectVehicle(selectVehicle:val ));
-                              }),
-
-                              // BlocBuilder<ChallanBloc, ChallanState>(
-                              //   buildWhen: (previous,current)=>previous.vehicleList != current.vehicleList || previous.selectVehicle != current.selectVehicle,
-                              //   builder: (context, state) {
-                              //     return
-                              //       _buildDropdownRow('Select Vehicle',
-                              //           state.vehicleList.map((e) => DropdownMenuItem(child: Text(e['vehicle_no'],style: TextStyle(fontWeight: FontWeight.w400,fontSize: 14),),value: jsonEncode(e),),).toList(),
-                              //           state.selectVehicle==''?null:state.selectVehicle,
-                              //               (val) {
-                              //             // vehicleNumberController.text = e[]
-                              //             // bloc.add(SelectVehicle(selectVehicle: val));
-                              //             var data  = jsonDecode(val);
-                              //             print('check value is ${data}');
-                              //             bloc.add(VehicleNo(vehicleNo:data['vehicle_no'].toString()));
-                              //             vehicleNumberController.text =data['vehicle_no'].toString() ;
-                              //             bloc.add(SelectVehicle(selectVehicle:val ));
-                              //           });
-                              //   },
-                              // ),
-
                               _buildTextFieldRow(
-                                'Enter Vehicle Number',
-                                vehicleNumberController,
+                                keyBoardType: TextInputType.number,
+                                'Weight',
+                                weightController,
                                 (value) {
-                                  // bloc.add(VehicleNo(vehicleNo:value ));
+                                  // bloc.add(Weight(weight: value));
                                 },
-                              )
-
+                              ),
                               // BlocBuilder<ChallanBloc, ChallanState>(
-                              //   buildWhen: (previous,current)=>previous.vehicleNo != current.vehicleNo,
+                              //   buildWhen: (previous,current)=>previous.weight != current.weight,
                               //   builder: (context, state) {
                               //     return  ;
                               //   },
                               // ),
-                            ],
 
-                            // _buildDropdownRow(
-                            //     'Trips',
-                            //     List.generate(10, (i) => '${i + 1}')
-                            //         .map(
-                            //           (e) => DropdownMenuItem(
-                            //             child: Text(
-                            //               e,
-                            //               style: TextStyle(
-                            //                   fontWeight: FontWeight.w400,
-                            //                   fontSize: 14),
-                            //             ),
-                            //             value: e.toString(),
-                            //           ),
-                            //         )
-                            //         .toList(),
-                            //     selectTrips == '' ? null : selectTrips, (val) {
-                            //   setState(() {
-                            //     selectTrips = val;
-                            //   });
-                            //   // bloc.add(SelectTrips(selectTrips: val));
-                            // }),
-
-                            // BlocBuilder<ChallanBloc, ChallanState>(
-                            //   buildWhen: (previous,current)=>previous.selectTrips != current.selectTrips,
-                            //   builder: (context, state) {
-                            //
-                            //     return   ;
-                            //   },
-                            // ),
-
-                            InkWell(
-                                onTap: () {
-                                  Utils.datePickerCommon(context).then(
-                                    (value) {
-                                      print('check date picker value ${value}');
-                                      setState(() {
-                                        if (widget.isEdit) {
-                                          if (value == null) {
-                                            return;
-                                          }
-                                          selectTripsDate =
-                                              DateFormat('dd-MM-yyyy')
-                                                  .format(value);
-                                        } else {
-                                          if (value == null) {
-                                            return;
-                                          }
-                                          selectTripsDate = value.toString();
-                                        }
-                                      });
-                                    },
-                                  );
-                                },
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Select Trip Date:',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.grey),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Container(
-                                      height: 40,
-                                      width: 1.sw,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          border:
-                                              Border.all(color: K.darkOrange)),
-                                      child: Row(
-                                        children: [
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 10),
-                                            child: Center(
-                                                child: Text(
-                                              widget.isEdit
-                                                  ? DateFormat('dd-MM-yyyy')
-                                                  .format(DateTime.parse(
-                                                  DateFormat(
-                                                      'dd-MM-yyyy')
-                                                      .parseStrict(
-                                                      selectTripsDate)
-                                                      .toString()))
-                                                  : selectTripsDate == ''
-                                                      ? ''
-                                                      : DateFormat('dd-MM-yyyy')
-                                                          .format(DateTime.parse(
-                                                              selectTripsDate)),
-                                              style: TextStyle(
-                                                  color: Colors.black),
-                                            )),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                )),
-
-                            // BlocBuilder<ChallanBloc, ChallanState>(
-                            //   buildWhen: (previous,current)=>previous != current.selectTrips,
-                            //   builder: (context, state) {
-                            //     return    ;
-                            //   },
-                            // ),
-                            SizedBox(height: 10,),
-                            InkWell(
-                                onTap: () {
-                                  Utils.timePickerCommon(context).then(
-                                    (value) {
-                                      print(
-                                          'check time picker value ${value!.format(context)}');
-                                      setState(() {
-                                        selectTripsTime =
-                                            value!.format(context).toString();
-                                      });
-                                    },
-                                  );
-                                },
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Select Time:',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.grey),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Container(
-                                      height: 40,
-                                      width: 1.sw,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          border:
-                                              Border.all(color: K.darkOrange)),
-                                      child: Row(
-                                        children: [
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 10),
-                                            child: Center(
-                                                child: Text(
-                                              selectTripsTime == ''
-                                                  ? ''
-                                                  : selectTripsTime,
-                                              style: TextStyle(
-                                                  color: Colors.black),
-                                            )),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                )),
-
-                            // BlocBuilder<ChallanBloc, ChallanState>(
-                            //   buildWhen: (previous,current)=>previous.selectTripsTime != current.selectTripsTime,
-                            //   builder: (context, state) {
-                            //     return  ;
-                            //   },
-                            // ),
-
-                            // BlocBuilder<ChallanBloc, ChallanState>(
-                            //   buildWhen: (previous,current)=>previous != current.selectTrips,
-                            //   builder: (context, state) {
-                            //     return _buildTextFieldRow('Select Time', timeController,(value) {
-                            //
-                            //     },);
-                            //   },
-                            // ),
-
-                            _buildDropdownRow(
-                                'Select Product',
-                                productList
-                                    .map(
-                                      (e) => DropdownMenuItem(
-                                        child: Text(
-                                          e['title'].toString(),
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 14),
-                                        ),
-                                        value: e['product_id'].toString(),
-                                      ),
-                                    )
-                                    .toList(),
-                                selectProduct == '' ? null : selectProduct,
-                                (val) {
-                              setState(() {
-                                selectProduct = val;
-                              });
-                              // bloc.add(SelectProduct(selectProduct: val));
-                            }),
-                            // BlocBuilder<ChallanBloc, ChallanState>(
-                            //   // buildWhen: (previous,current)=>previous.productList != current.productList || previous.selectProduct != current.selectProduct,
-                            //   builder: (context, state) {
-                            //     print('check product list is ${state.productList}');
-                            //     return ;
-                            //   },
-                            // ),
-
-                            _buildTextFieldRow(
-                              keyBoardType: TextInputType.number,
-                              'Measurement',
-                              measurementController,
-
-                              (value) {
-                                // bloc.add(Measurement(measurement: value));
-                              },
-                            ),
-
-                            // BlocBuilder<ChallanBloc, ChallanState>(
-                            //   buildWhen: (previous,current)=>previous.measurement != current.measurement,
-                            //   builder: (context, state) {
-                            //     return   ;
-                            //   },
-                            // ),
-
-                            _buildTextFieldRow(
-                              keyBoardType: TextInputType.number,
-                              'Weight',
-                              weightController,
-                              (value) {
-                                // bloc.add(Weight(weight: value));
-                              },
-                            ),
-                            // BlocBuilder<ChallanBloc, ChallanState>(
-                            //   buildWhen: (previous,current)=>previous.weight != current.weight,
-                            //   builder: (context, state) {
-                            //     return  ;
-                            //   },
-                            // ),
-
-                            Column(
-                              children: [
-                                _buildRadioRow(
-                                    'Select Credit',
-                                    ['Credit', 'Non Credit'],
-                                    creditType, (val) {
-                                  // bloc.add(SelectCredit(selectCredit: val));
-                                  setState(() {
-                                    creditType = val;
-                                  });
-                                }),
-                                if (creditType.toString() == 'Non Credit')
+                              Column(
+                                children: [
                                   _buildRadioRow(
-                                      'Select Payment Method',
-                                      ['Cash', 'UPI'],
-                                      selectPaymentMethod, (val) {
+                                      'Select Credit',
+                                      ['Credit', 'Non Credit'],
+                                      creditType, (val) {
+                                    // bloc.add(SelectCredit(selectCredit: val));
                                     setState(() {
-                                      selectPaymentMethod = val;
+                                      creditType = val;
                                     });
-                                  })
-                                // BlocBuilder<ChallanBloc, ChallanState>(
-                                //   buildWhen: (previous,current)=>previous.selectPaymentMethod != current.selectPaymentMethod,
-                                //   builder: (context, state) {
-                                //     return  _;
-                                //   },
-                                // ),
-                              ],
-                            )
-
-                            // BlocBuilder<ChallanBloc, ChallanState>(
-                            //   buildWhen: (previous,current)=>previous.selectCredit != current.selectCredit,
-                            //   builder: (context, state) {
-                            //     return ;
-                            //   },
-                            // ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: AppButton(
-                                backgroundColor: Colors.grey,
-                                text: "Reset",
-                                onPressed: () {
-                                  // bloc.add(SelectCompany(selectCompany: ''));
-                                  // bloc.add(SelectPlant(selectPlant: null));
-                                  // bloc.add(SelectPaymentMethod(selectPaymentMethod: ''));
-                                  // bloc.add(SelectCredit(selectCredit: ''));
-                                  // bloc.add(Weight(weight: ''));
-                                  // bloc.add(Measurement(measurement: ''));
-                                  // bloc.add(SelectProduct(selectProduct: ''));
-                                  // bloc.add(SelectTripsTime(selectTripsTime: ''));
-                                  // bloc.add(SelectTripsDate(selectTripsDate:''));
-                                  // bloc.add(SelectTrips(selectTrips: ''));
-                                  // bloc.add(SelectParty(selectParty: ''));
-                                  // bloc.add(VehicleNo(vehicleNo:''));
-                                  // bloc.add(SelectVehicle(selectVehicle:'' ));
-                                  // bloc.add(SelectSupplier(selectSupplier: ''));
-                                  // bloc.add(SiteAddress(siteAddress: ''));
-                                  // bloc.add(SelectTransport(selectTransport: ''));
-                                  // bloc.add(ResetAllFields());
-                                  // measurementController.clear();
-                                  // weightController.clear();
-                                  // vehicleNumberController.clear();
-                                  // siteAddressController.clear();
-                                  resetChallanForm(isReset: true);
-                                },
-                                // isLoading: state.loginApiStatus == ApiStatus.loading,
+                                  }),
+                                  if (creditType.toString() == 'Non Credit')
+                                    _buildRadioRow(
+                                        'Select Payment Method',
+                                        ['Cash', 'UPI'],
+                                        selectPaymentMethod, (val) {
+                                      setState(() {
+                                        selectPaymentMethod = val;
+                                      });
+                                    })
+                                  // BlocBuilder<ChallanBloc, ChallanState>(
+                                  //   buildWhen: (previous,current)=>previous.selectPaymentMethod != current.selectPaymentMethod,
+                                  //   builder: (context, state) {
+                                  //     return  _;
+                                  //   },
+                                  // ),
+                                ],
                               ),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                                child: ValueListenableBuilder(
-                              valueListenable: isLoadingButton,
-                              builder: (context, bool loading, child) =>
-                                  AppButton(
-                                    fontSize: 14,
-                                text: widget.isEdit ? 'Update and Go to List' : 'Save and Go to List',
-                                onPressed: () {
-                                  if (widget.isEdit) {
-                                    fetchUpateChallan();
-                                  } else {
-                                    fetchSubmitChallan();
-                                  }
-                                  // bloc.add(SubmitChallan());
-                                },
-                                isLoading: loading,
-                              ),
-                            )
 
-                                // BlocListener<ChallanBloc, ChallanState>(
-                                //   listenWhen: (previous, current) => previous.loginApiStatus != current.loginApiStatus,
-                                //   listener: (context, state) {
-                                //     if(state.loginApiStatus == ApiStatus.error){
-                                //       Utils.showFlushBar(state.error, FlushBarType.error, context);
-                                //     }
-                                //     if(state.loginApiStatus == ApiStatus.success){
-                                //       // Navigator.pop(context);
-                                //       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const ChallanList()), (route) => false);
-                                //       Utils.showFlushBar(state.successMsg, FlushBarType.success, context);
-                                //     }
-                                //   },
-                                //   child: BlocBuilder<ChallanBloc, ChallanState>(
-                                //     buildWhen: (previous, current) => previous.loginApiStatus != current.loginApiStatus,
-                                //     builder: (context, state) {
-                                //       return AppButton(
-                                //         text: "Add",
-                                //         onPressed: () {
-                                //           bloc.add(SubmitChallan());
-                                //         },
-                                //         isLoading: state.loginApiStatus == ApiStatus.loading,
-                                //       );
-                                //     },
-                                //   ),
-                                //   //
-                                //   // SizedBox(
-                                //   //   width: double.infinity,
-                                //   //   height: 50,
-                                //   //   child: ElevatedButton(
-                                //   //     style: ElevatedButton.styleFrom(
-                                //   //       backgroundColor: K.darkOrange,
-                                //   //       shape: RoundedRectangleBorder(
-                                //   //         borderRadius: BorderRadius.circular(10),
-                                //   //       ),
-                                //   //     ),
-                                //   //     onPressed: isLoading ? null : _login,
-                                //   //     child: isLoading
-                                //   //         ? const CircularProgressIndicator(color: Colors.white)
-                                //   //         : const Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: Colors.white)),
-                                //   //   ),
-                                //   // ),
-                                // ),
-                                ),
-                          ],
-                        ),
-                        // const SizedBox(height: 20),
-                        if(!widget.isEdit)...[
+                              _buildTextFieldRow(
+                                maxLine: 4,
+                                  'Remark', remark,
+                                      (value) {}),
+                            ],
+                          ),
                           const SizedBox(height: 20),
-                          ValueListenableBuilder(
-                            valueListenable: isLoadingButton1,
-                            builder: (context, bool loading, child) =>
-                                AppButton(
-                                  text: 'Save and Print',
+                          Row(
+                            children: [
+                              Expanded(
+                                child: AppButton(
+                                  backgroundColor: Colors.grey,
+                                  text: "Reset",
+                                  onPressed: () {
+                                    // bloc.add(SelectCompany(selectCompany: ''));
+                                    // bloc.add(SelectPlant(selectPlant: null));
+                                    // bloc.add(SelectPaymentMethod(selectPaymentMethod: ''));
+                                    // bloc.add(SelectCredit(selectCredit: ''));
+                                    // bloc.add(Weight(weight: ''));
+                                    // bloc.add(Measurement(measurement: ''));
+                                    // bloc.add(SelectProduct(selectProduct: ''));
+                                    // bloc.add(SelectTripsTime(selectTripsTime: ''));
+                                    // bloc.add(SelectTripsDate(selectTripsDate:''));
+                                    // bloc.add(SelectTrips(selectTrips: ''));
+                                    // bloc.add(SelectParty(selectParty: ''));
+                                    // bloc.add(VehicleNo(vehicleNo:''));
+                                    // bloc.add(SelectVehicle(selectVehicle:'' ));
+                                    // bloc.add(SelectSupplier(selectSupplier: ''));
+                                    // bloc.add(SiteAddress(siteAddress: ''));
+                                    // bloc.add(SelectTransport(selectTransport: ''));
+                                    // bloc.add(ResetAllFields());
+                                    // measurementController.clear();
+                                    // weightController.clear();
+                                    // vehicleNumberController.clear();
+                                    // siteAddressController.clear();
+                                    resetChallanForm(isReset: true);
+                                  },
+                                  // isLoading: state.loginApiStatus == ApiStatus.loading,
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                  child: ValueListenableBuilder(
+                                valueListenable: isLoadingButton,
+                                builder: (context, bool loading, child) =>
+                                    AppButton(
+                                      fontSize: 14,
+                                  text: widget.isEdit ? 'Update and Go to List' : 'Save and Go to List',
                                   onPressed: () {
                                     if (widget.isEdit) {
                                       fetchUpateChallan();
                                     } else {
-                                      fetchSubmitChallan(isPdf: true);
+                                      fetchSubmitChallan();
                                     }
                                     // bloc.add(SubmitChallan());
                                   },
                                   isLoading: loading,
                                 ),
+                              )
+
+                                  // BlocListener<ChallanBloc, ChallanState>(
+                                  //   listenWhen: (previous, current) => previous.loginApiStatus != current.loginApiStatus,
+                                  //   listener: (context, state) {
+                                  //     if(state.loginApiStatus == ApiStatus.error){
+                                  //       Utils.showFlushBar(state.error, FlushBarType.error, context);
+                                  //     }
+                                  //     if(state.loginApiStatus == ApiStatus.success){
+                                  //       // Navigator.pop(context);
+                                  //       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const ChallanList()), (route) => false);
+                                  //       Utils.showFlushBar(state.successMsg, FlushBarType.success, context);
+                                  //     }
+                                  //   },
+                                  //   child: BlocBuilder<ChallanBloc, ChallanState>(
+                                  //     buildWhen: (previous, current) => previous.loginApiStatus != current.loginApiStatus,
+                                  //     builder: (context, state) {
+                                  //       return AppButton(
+                                  //         text: "Add",
+                                  //         onPressed: () {
+                                  //           bloc.add(SubmitChallan());
+                                  //         },
+                                  //         isLoading: state.loginApiStatus == ApiStatus.loading,
+                                  //       );
+                                  //     },
+                                  //   ),
+                                  //   //
+                                  //   // SizedBox(
+                                  //   //   width: double.infinity,
+                                  //   //   height: 50,
+                                  //   //   child: ElevatedButton(
+                                  //   //     style: ElevatedButton.styleFrom(
+                                  //   //       backgroundColor: K.darkOrange,
+                                  //   //       shape: RoundedRectangleBorder(
+                                  //   //         borderRadius: BorderRadius.circular(10),
+                                  //   //       ),
+                                  //   //     ),
+                                  //   //     onPressed: isLoading ? null : _login,
+                                  //   //     child: isLoading
+                                  //   //         ? const CircularProgressIndicator(color: Colors.white)
+                                  //   //         : const Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: Colors.white)),
+                                  //   //   ),
+                                  //   // ),
+                                  // ),
+                                  ),
+                            ],
                           ),
+                          // const SizedBox(height: 20),
+                          if(!widget.isEdit)...[
+                            const SizedBox(height: 20),
+                            ValueListenableBuilder(
+                              valueListenable: isLoadingButton1,
+                              builder: (context, bool loading, child) =>
+                                  AppButton(
+                                    text: 'Save and Print',
+                                    onPressed: () {
+                                      if (widget.isEdit) {
+                                        fetchUpateChallan();
+                                      } else {
+                                        fetchSubmitChallan(isPdf: true);
+                                      }
+                                      // bloc.add(SubmitChallan());
+                                    },
+                                    isLoading: loading,
+                                  ),
+                            ),
+                          ],
+                          const SizedBox(height: 20),
                         ],
-                        const SizedBox(height: 20),
-                      ],
+                      ),
                     ),
                   ),
                 );
@@ -1657,12 +1637,13 @@ class _CreateChallanState extends State<CreateChallan> {
 
   Widget _buildTextFieldRow(String label, TextEditingController controller,
       ValueChanged<String>? onChanged,
-      {bool isReadOnly = false,keyBoardType = TextInputType.text}) {
+      {bool isReadOnly = false,keyBoardType = TextInputType.text,int? maxLine}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: AppTextField(
         keyboardType: keyBoardType,
         controller: controller,
+        maxLine: maxLine,
         hintText: label,
         isRequired: isReadOnly,
         showTitle: true,
